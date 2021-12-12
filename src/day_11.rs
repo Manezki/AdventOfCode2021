@@ -59,9 +59,9 @@ fn main () {
     ).collect::<Vec<Vec<usize>>>();
 
     let mut flashes = 0 as usize;
-    let simualtion_steps = 100;
+    let simualtion_steps = 1000;
 
-    for _ in 0..simualtion_steps {
+    for step in 1..=simualtion_steps {
 
         for x in 0..board.len() {
             for y in 0..board[0].len() {
@@ -71,6 +71,14 @@ fn main () {
 
         let empty_flashes: HashSet<(usize, usize)> = HashSet::new();
         let flashed_tiles = propagate_flashes(&mut board, &empty_flashes);
+
+        println!("Step {:?}, flashes {:?}", step, flashed_tiles.len());
+
+        if flashed_tiles.len() == (board.len() * board[0].len()) {
+            println!("Simultaneous flash @ {:?}", step);
+            break;
+        }
+
         flashes += flashed_tiles.len();
         
         // Flashed tiles to 0
