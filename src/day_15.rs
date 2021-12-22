@@ -137,9 +137,6 @@ fn dijkstra_risk (board: &Vec<Vec<u32>>) -> Vec<Vec<u32>> {
     let mut cumulative_risk = vec![vec![u32::MAX - 10; board.len()]; board[0].len()];
     cumulative_risk[0][0] = 0;
 
-    println!("{:?}x{:?}", board.len(), board[0].len());
-    println!("{:?}x{:?}", cumulative_risk.len(), cumulative_risk[0].len());
-
     let mut min_heap: BinaryHeap<Edge> = BinaryHeap::new();
     min_heap.push(Edge { location: (0, 0), risk: 0 });
 
@@ -158,44 +155,6 @@ fn dijkstra_risk (board: &Vec<Vec<u32>>) -> Vec<Vec<u32>> {
             }
         }
     }
-
-
-    // while visited_nodes.len() < board.len()*board[0].len() {
-    //     let unvisited_neighbours: HashSet<(usize, usize)> = visited_nodes.iter()
-    //         .map(|xy| main_axis_neighbours(xy.0, xy.1, max_coords))
-    //         .reduce(|l, r| l.union(&r).map(|xy| *xy).collect::<HashSet<(usize, usize)>>().clone()).unwrap()
-    //         .difference(&visited_nodes)
-    //         .map(|xy| *xy).collect();
-        
-    //     for (x, y) in unvisited_neighbours {
-
-    //         let self_risk = board[x][y];
-    //         let mut min_access = u32::MAX;
-
-    //         for (nx, ny) in main_axis_neighbours(x, y, max_coords) {
-    //             min_access = if (board[nx][ny] + self_risk) < min_access { board[nx][ny] + self_risk } else { min_access };
-    //         }
-
-
-    //     }
-    // }
-
-    // for x in (0..acc_risk.len()).rev() {
-    //     for y in (0..acc_risk[0].len()).rev() {
-
-    //         // Jump start with target node
-    //         if (x, y) == (board.len() - 1, board[0].len() - 1) {
-    //             println!("Jump starting {:?}", (x,y));
-    //             acc_risk[x][y] = board[x][y];
-    //             continue;
-    //         }
-
-    //         let x_neighbour_risk = if x + 1 <= (acc_risk.len() - 1) { acc_risk[x + 1][y] } else { 999 };
-    //         let y_neighbour_risk = if y + 1 <= (acc_risk[0].len() - 1) { acc_risk[x][y + 1] } else { 999 };
-
-    //         acc_risk[x][y] = if x_neighbour_risk > y_neighbour_risk { y_neighbour_risk + board[x][y] } else { x_neighbour_risk + board[x][y] };
-    //     }
-    // }
 
     return cumulative_risk;
 }
@@ -229,7 +188,27 @@ fn main () {
             .map(|c| u32::from_str_radix(&c.to_string(), 10).unwrap()).collect::<Vec<u32>>()
         ).collect::<Vec<Vec<u32>>>();
 
-    let paths = dijkstra_risk(&board);
+    // let paths = dijkstra_risk(&board);
 
-    println!("Least risky path puzzle 1: {:?}", paths[paths.len() - 1][paths[0].len() - 1]);
+    // println!("Least risky path puzzle 1: {:?}", paths[paths.len() - 1][paths[0].len() - 1]);
+
+    let mut extended_board: Vec<Vec<u32>> = vec![vec![0; board.len()*5]; board[0].len()*5];
+    
+    for x in 0..5 {
+        for y in 0..5 {
+            let addition = (x + y) as u32;
+
+            for i in 0..board.len() {
+                for j in 0..board[0].len() {
+                    let old_value = board[i][j];
+                    extended_board[x*board.len() + i][y*board[0].len() + j] = if old_value + addition <= 9 { old_value + addition } else { ((old_value + addition)%10) + 1 };
+                }
+            }
+        }
+    }
+
+    // Manageable with a cargo build --release : )
+    let paths = dijkstra_risk(&extended_board);
+
+    println!("Least risky path puzzle 2: {:?}", paths[paths.len() - 1][paths[0].len() - 1]);
 }
